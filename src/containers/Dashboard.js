@@ -144,13 +144,17 @@ export default class {
         .html("")
       this.counter ++
     }
-
+    // Bug Hunt 4 = 
+    // Détacher les gestionnaires d'événements clic précédents
     bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
-    })
-
-    return bills
-
+      $(`#open-bill${bill.id}`).off('click');
+    });
+    // Attacher les nouveaux gestionnaires d'événements clic
+    bills.forEach(bill => {
+      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills));
+    });
+  
+    return bills;
   }
 
   getBillsAllUsers = () => {
