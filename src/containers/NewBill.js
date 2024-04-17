@@ -1,6 +1,7 @@
 import { ROUTES_PATH } from '../constants/routes.js'
 import Logout from "./Logout.js"
 
+
 export default class NewBill {
   constructor({ document, onNavigate, store, localStorage }) {
     this.document = document
