@@ -9,8 +9,10 @@ import BillsUI from "../views/BillsUI.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import { ROUTES_PATH,ROUTES } from "../constants/routes.js";
 import router from "../app/Router.js";
+import mockStore from "../__mocks__/store.js"
 
-jest.mock("../app/Store.js");
+
+jest.mock("../app/store")
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -42,10 +44,12 @@ describe("Given I am connected as an employee", () => {
       expect(windowIcon.classList.contains("active-icon")).toBeTruthy();
     });
 
-    describe("handleChangeFile", () => {
+    
+
+    describe("when i'm on handleChangeFile", () => {
       test("Then alert should display when uploading a file with an invalid extension", () => {
         const localStorageMock = {
-          getItem: jest
+          getItem : jest
             .fn()
             .mockReturnValue(JSON.stringify({ email: "test@example.com" })),
         };
@@ -67,7 +71,7 @@ describe("Given I am connected as an employee", () => {
         });
        
         const fileInput = document.querySelector('input[data-testid="file"]');
-        const file = new File(["dummy content"], "test.txt", {
+        const file = new File(["test content"], "test.txt", {
           type: "text/plain",
         });
         Object.defineProperty(fileInput, "files", {
@@ -84,6 +88,7 @@ describe("Given I am connected as an employee", () => {
         alertSpy.mockRestore();
       });
     });
+    
     test("Should contain all required inputs", () => {
       document.body.innerHTML = NewBillUI();
 
@@ -105,7 +110,6 @@ describe("Given I am connected as an employee", () => {
       const fileInput = document.querySelector('input[data-testid="file"]');
       const submitButton = document.querySelector('button[type="submit"]');
 
-      // Assert that all required inputs exist
       expect(expenseTypeInput).toBeTruthy();
       expect(expenseNameInput).toBeTruthy();
       expect(dateInput).toBeTruthy();
@@ -119,9 +123,9 @@ describe("Given I am connected as an employee", () => {
 
     test("Should submit the form with correct data", () => {
       document.body.innerHTML = NewBillUI();
-
+    
       const handleSubmitSpy = jest.spyOn(NewBill.prototype, "handleSubmit");
-
+    
       const newBillInstance = new NewBill({
         document: document,
         onNavigate: jest.fn(),
@@ -130,17 +134,38 @@ describe("Given I am connected as an employee", () => {
           getItem: jest.fn(() => JSON.stringify({ email: "test@example.com" })),
         },
       });
-
+    
       // Simulate form submission
       const form = document.querySelector('form[data-testid="form-new-bill"]');
+      
+      form.querySelector('input[data-testid="expense-name"]').value = "Restaurant"; // Set the value for expense name
+      form.querySelector('input[data-testid="datepicker"]').value = "2024-04-23"; // Set the value for datepicker
+      form.querySelector('input[data-testid="amount"]').value = "50"; // Set the value for amount
+      form.querySelector('input[data-testid="vat"]').value = "5"; // Set the value for VAT
+      form.querySelector('input[data-testid="pct"]').value = "20"; // Set the value for PCT
+      form.querySelector('textarea[data-testid="commentary"]').value = "Lunch with clients"; // Set the value for commentary
+    
       form.dispatchEvent(new Event("submit"));
-
-      // Assert that handleSubmit is called
+  
       expect(handleSubmitSpy).toHaveBeenCalled();
-
-      // Restore the original method after the test
+    
+      // Assert that form fields have correct values
+      expect(newBillInstance.fileUrl).toBeNull(); 
+      expect(newBillInstance.fileName).toBeNull(); 
+      expect(newBillInstance.billId).toBeNull(); 
+      // Assert the values of input fields
+      expect(form.querySelector('input[data-testid="expense-name"]').value).toBe("Restaurant");
+      expect(form.querySelector('input[data-testid="datepicker"]').value).toBe("2024-04-23");
+      expect(form.querySelector('input[data-testid="amount"]').value).toBe("50");
+      expect(form.querySelector('input[data-testid="vat"]').value).toBe("5");
+      expect(form.querySelector('input[data-testid="pct"]').value).toBe("20");
+      expect(form.querySelector('textarea[data-testid="commentary"]').value).toBe("Lunch with clients");
+    
       handleSubmitSpy.mockRestore();
     });
+
+    
+    // ERREUR 404 ET 500
     test('Then it fails with a 404 message error', async () => {
       const errorMessage = 'Erreur 404';
       const html = BillsUI({ error: errorMessage });
@@ -157,6 +182,6 @@ describe("Given I am connected as an employee", () => {
 
       const message = await screen.getByText(errorMessage);
       expect(message).toBeTruthy();
-    });    
+    });
   });
 });
